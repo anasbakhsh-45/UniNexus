@@ -1,7 +1,9 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import { connectDB } from './config/db';
+import { logger } from './utils/logger';
 
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
@@ -13,17 +15,16 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
 
-console.log("🔍 Checking environment variables...");
-console.log("PORT:", PORT);
-console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
-// Updated to use local MongoDB on port 27018
+logger.info("🔍 Checking environment variables...");
+logger.info(`PORT: ${PORT}`);
+logger.info(`MONGO_URI exists: ${!!process.env.MONGO_URI}`);
 
 app.use(cors());
 app.use(express.json());
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {
-    console.log(`📨 ${req.method} ${req.path} - Body:`, req.body);
+    logger.debug(`📨 ${req.method} ${req.path}`, { body: req.body });
     next();
 });
 
@@ -37,17 +38,27 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.get("/api/health", (req: Request, res: Response) => {
-  res.json({ message: "Connected! Backend is running." });
+  res.json({ 
+    message: "Connected! Backend is running.",
+    timestamp: new Date().toISOString(),
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
 });
 
-const startServer = async () => {
-  // Start server first
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
-  
-  // Then try to connect to MongoDB
-  await connectDB();
+const startServer = async (): Promise<void> => {
+  try {
+    // Connect to MongoDB first
+    await connectDB();
+    
+    // Then start server
+    app.listen(PORT, () => {
+      logger.info(`🚀 Server running on http://localhost:${PORT}`);
+      logger.info(`📊 Health check: http://localhost:${PORT}/api/health`);
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error instanceof Error ? error : String(error));
+    process.exit(1);
+  }
 };
 
 startServer();

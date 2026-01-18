@@ -13,7 +13,7 @@ const createEvent = async (req: AuthenticatedRequest, res: Response): Promise<vo
             res.status(401).json({'Message':'User not authenticated'});
             return;
         }
-        const club = await ClubProfile.findOne({user : req.user?._id});
+        const club = await ClubProfile.findOne({user : req.user._id});
         if(!club){
             res.status(404).json({'Message':'You must have a registered club to create events'});
             return;

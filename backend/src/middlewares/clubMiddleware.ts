@@ -11,7 +11,7 @@ const isClubOwner = async ( req : AuthenticatedRequest , res : Response , next :
             res.status(401).json({'Message':'no Authorized user found '});
             return ;
         }
-        const club = await ClubProfile.findOne({user : req.user?._id}); 
+        const club = await ClubProfile.findOne({user : req.user._id}); 
         if(!club){
             res.status(403).json({'Message' : 'Access denied. User is not a club owner'});
             return;

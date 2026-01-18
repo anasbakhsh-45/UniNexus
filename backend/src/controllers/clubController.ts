@@ -12,14 +12,14 @@ const registerClub = async (req: AuthenticatedRequest, res : Response): Promise<
             res.status(400).json({'Message':'no Authorized user'});
             return;
         }
-        const existingClub = await(ClubProfile.findOne({user : req.user?._id}));
+        const existingClub = await(ClubProfile.findOne({user : req.user._id}));
         if(existingClub){
            res.status(500).json({'Message' : 'User already have a registered Club'}); 
            return;
         }
         const {name , description,email,logoUrl,socialLinks} = req.body;
         const newClub = await ClubProfile.create({
-            user: req.user?._id,
+            user: req.user._id,
             name,
             description,
             email,
@@ -65,7 +65,7 @@ const updateClub = async (req:AuthenticatedRequest , res : Response): Promise<vo
             res.status(400).json({'Message':'no Authorized user'});
             return;
         }
-        const club  = await ClubProfile.findOne({user : req.user?._id});
+        const club  = await ClubProfile.findOne({user : req.user._id});
         if(!club){
             res.status(404).json({'Message': 'Club not found'});
             return;

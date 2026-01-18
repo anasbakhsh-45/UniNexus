@@ -8,12 +8,18 @@ interface AuthenticatedRequest extends Request{
 }
 const isEventOrganiser = async (req : AuthenticatedRequest , res : Response , next : NextFunction): Promise<void> =>{
     try{
+        if (!req.user) {
+            res.status(401).json({'Message':'Unauthorized user'});
+            return;
+        }
+        
         const event = await Event.findById(req.params.id);
         if(!event){
             res.status(404).json({'Message':'Event not found'});
             return;
         }
-        const club = await ClubProfile.findOne({user : req.user?._id});
+        
+        const club = await ClubProfile.findOne({user : req.user._id});
         if(!club){
             res.status(403).json({'Message':'You are not authorized to perform this action'});
             return;
