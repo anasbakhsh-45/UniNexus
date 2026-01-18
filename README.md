@@ -116,7 +116,7 @@ npm install
 3. Create a `.env` file in the `backend` directory:
 ```env
 PORT=3000
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/uninexus?retryWrites=true&w=majority
+MONGO_URI=YOUR_MONGO_DB_URI_HERE
 JWT_SECRET=your_jwt_secret_key_here
 NODE_ENV=development
 
